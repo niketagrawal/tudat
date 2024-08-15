@@ -1,0 +1,63 @@
+# When a push is made to the develop branch of the main repository, this workflow does the following:
+# 1. Bumps the version in the tudat github repository.
+# 2. Creates a new tag in the tudat github repository.
+# 3. Sends a repository dispatch event to the tudat-feedstock repository to trigger the creation of a new development conda package. The version number is also sent as a payload.
+
+
+name: Trigger creation of new development conda package
+
+on:
+  push:
+    branches:
+      - develop
+
+
+jobs:
+
+  bump-version:
+
+    runs-on: ubuntu-latest
+    name: Bump version in tudat repository
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip install bump2version
+
+      - name: Bump version
+        id: bump_version
+        run: bump2version patch --tag --commit --message "Bump version to {new_version}" --tag-name v{new_version}
+
+      - name: Create tag
+        run: git tag -a v${{ steps.bump_version.outputs.new_version }} -m "v${{ steps.bump_version.outputs.new_version }}"
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push tag to tudat repository
+        run: git push origin v${{ steps.bump_version.outputs.new_version }}
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  dispacher:
+    runs-on: ubuntu-latest
+    name: dispatch repository event to tudat-feedstock
+    steps:
+      - name: repository-dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: tudat-team/tudat-feedstock
+          event-type: push to ${{ github.repository }}
+          client-payload: >-
+            {
+            "event": "${{ github.event_name }}",
+            "actor": "${{ github.actor }}",
+            "repository": "${{ github.repository }}",
+            "ref": "${{ github.ref }}",
+            "ref_name": "${{ github.ref_name }}",
+            "ref_type": "${{ github.ref_type }}",
+            "sha": "${{ github.sha }}"
+            }
