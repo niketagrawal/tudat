@@ -13,11 +13,11 @@ on:
 
 
 jobs:
-
   bump-version:
-
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
+    outputs:
+      new_version: ${{ steps.bump_version.outputs.new_version }}
 
     steps:
       - name: Checkout
@@ -27,10 +27,13 @@ jobs:
         run: pip install bump2version
 
       - name: Bump version
+        id: bump_version
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
           bump2version dev --config-file .bumpversion.cfg --verbose
+          new_version=$(bump2version --dry-run --list | grep new_version= | sed 's/new_version=//')
+          echo "new_version=$new_version" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,23 +43,26 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-#   dispacher:
-#     runs-on: ubuntu-latest
-#     name: dispatch repository event to tudat-feedstock
-#     steps:
-#       - name: repository-dispatch
-#         uses: peter-evans/repository-dispatch@v3
-#         with:
-#           token: ${{ secrets.GITHUB_TOKEN }}
-#           repository: tudat-team/tudat-feedstock
-#           event-type: push to ${{ github.repository }}
-#           client-payload: >-
-#             {
-#             "event": "${{ github.event_name }}",
-#             "actor": "${{ github.actor }}",
-#             "repository": "${{ github.repository }}",
-#             "ref": "${{ github.ref }}",
-#             "ref_name": "${{ github.ref_name }}",
-#             "ref_type": "${{ github.ref_type }}",
-#             "sha": "${{ github.sha }}"
-#             }
+  dispatcher:
+    runs-on: ubuntu-latest
+    name: dispatch repository event to tudat-feedstock
+    needs: bump-version
+
+    steps:
+      - name: repository-dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: niketagrawal/tudat-feedstock
+          event-type: push-to-${{ github.repository }}
+          client-payload: >-
+            {
+              "event": "${{ github.event_name }}",
+              "actor": "${{ github.actor }}",
+              "repository": "${{ github.repository }}",
+              "ref": "${{ github.ref }}",
+              "ref_name": "${{ github.ref_name }}",
+              "ref_type": "${{ github.ref_type }}",
+              "sha": "${{ github.sha }}",
+              "version": "${{ needs.bump-version.outputs.new_version }}"
+            }
