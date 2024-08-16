@@ -23,41 +23,41 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install bump2version
         run: pip install bump2version
 
       - name: Bump version
-        id: bump_version
-        run: bump2version patch --tag --commit --message "Bump version to {new_version}" --tag-name v{new_version}
-
-      - name: Create tag
-        run: git tag -a v${{ steps.bump_version.outputs.new_version }} -m "v${{ steps.bump_version.outputs.new_version }}"
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          bump2version dev --config-file .bumpversion.cfg
+          git push origin HEAD:${{ github.ref }}
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push tag to tudat repository
-        run: git push origin v${{ steps.bump_version.outputs.new_version }}
+        run: git push origin --follow-tags
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-  dispacher:
-    runs-on: ubuntu-latest
-    name: dispatch repository event to tudat-feedstock
-    steps:
-      - name: repository-dispatch
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: tudat-team/tudat-feedstock
-          event-type: push to ${{ github.repository }}
-          client-payload: >-
-            {
-            "event": "${{ github.event_name }}",
-            "actor": "${{ github.actor }}",
-            "repository": "${{ github.repository }}",
-            "ref": "${{ github.ref }}",
-            "ref_name": "${{ github.ref_name }}",
-            "ref_type": "${{ github.ref_type }}",
-            "sha": "${{ github.sha }}"
-            }
+#   dispacher:
+#     runs-on: ubuntu-latest
+#     name: dispatch repository event to tudat-feedstock
+#     steps:
+#       - name: repository-dispatch
+#         uses: peter-evans/repository-dispatch@v3
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           repository: tudat-team/tudat-feedstock
+#           event-type: push to ${{ github.repository }}
+#           client-payload: >-
+#             {
+#             "event": "${{ github.event_name }}",
+#             "actor": "${{ github.actor }}",
+#             "repository": "${{ github.repository }}",
+#             "ref": "${{ github.ref }}",
+#             "ref_name": "${{ github.ref_name }}",
+#             "ref_type": "${{ github.ref_type }}",
+#             "sha": "${{ github.sha }}"
+#             }
