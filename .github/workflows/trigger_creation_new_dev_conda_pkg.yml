@@ -54,7 +54,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: niketagrawal/tudat-feedstock
-          event-type: push-to-${{ github.repository }}
+          event-type: push-to-niketagrawal/tudat-feedstock
           client-payload: >-
             {
               "event": "${{ github.event_name }}",
