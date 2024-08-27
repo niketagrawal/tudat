@@ -49,26 +49,26 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-  dispatcher:
-    runs-on: ubuntu-latest
-    name: dispatch repository event to tudat-feedstock
-    needs: bump-version
+#   dispatcher:
+#     runs-on: ubuntu-latest
+#     name: dispatch repository event to tudat-feedstock
+#     needs: bump-version
 
-    steps:
-      - name: repository-dispatch
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: niketagrawal/tudat-feedstock
-          event-type: push-to-niketagrawal/tudat-feedstock
-          client-payload: >-
-            {
-              "event": "${{ github.event_name }}",
-              "actor": "${{ github.actor }}",
-              "repository": "${{ github.repository }}",
-              "ref": "${{ github.ref }}",
-              "ref_name": "${{ github.ref_name }}",
-              "ref_type": "${{ github.ref_type }}",
-              "sha": "${{ github.sha }}",
-              "version": "${{ needs.bump-version.outputs.new_version }}"
-            }
+#     steps:
+#       - name: repository-dispatch
+#         uses: peter-evans/repository-dispatch@v3
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           repository: niketagrawal/tudat-feedstock
+#           event-type: push-to-niketagrawal/tudat-feedstock
+#           client-payload: >-
+#             {
+#               "event": "${{ github.event_name }}",
+#               "actor": "${{ github.actor }}",
+#               "repository": "${{ github.repository }}",
+#               "ref": "${{ github.ref }}",
+#               "ref_name": "${{ github.ref_name }}",
+#               "ref_type": "${{ github.ref_type }}",
+#               "sha": "${{ github.sha }}",
+#               "version": "${{ needs.bump-version.outputs.new_version }}"
+#             }
