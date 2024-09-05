@@ -1,7 +1,7 @@
 # When a push is made to the develop branch of the main repository, this workflow does the following:
 # 1. Bumps the version in the tudat github repository.
 # 2. Creates a new tag in the tudat github repository.
-# 3. Sends a repository dispatch event to the tudat-feedstock repository to trigger the creation of a new development conda package. The version number is also sent as a payload.
+# 3. Sends a repository dispatch event to the tudat-feedstock repository to trigger the creation of a new development conda package.
 
 
 name: Trigger creation of new development conda package
