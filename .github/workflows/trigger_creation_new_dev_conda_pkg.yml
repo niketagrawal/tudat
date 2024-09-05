@@ -58,7 +58,7 @@ jobs:
       - name: repository-dispatch
         uses: peter-evans/repository-dispatch@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_dispatch }}
           repository: niketagrawal/tudat-feedstock
           event-type: push-to-niketagrawal/tudat-feedstock
           client-payload: >-
