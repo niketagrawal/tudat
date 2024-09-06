@@ -7,5 +7,4 @@ Repository with the core functionality of the Tudat ecosystem.
 * This repository is best built as part of the [tudat-bundle](https://github.com/tudat-team/tudat-bundle)
 * Conda package for this repository are available on [anaconda](anaconda.org/tudat-team/tudat/)
 
-Test commit to trigger bump version workflow in feedstock
-Demo 29 Aug
+Dispatch event job fixed. 
