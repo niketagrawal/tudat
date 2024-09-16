@@ -9,6 +9,7 @@ name: Bump version upon new commits in the last 24 hours and notify feedstock
 on:
     schedule:
         - cron: '*/5 * * * *'
+    workflow_dispatch:
 
 
 permissions:
@@ -29,9 +30,10 @@ jobs:
         name: Check latest commit
         outputs:
           should_run: ${{ steps.should_run.outputs.should_run }}
-        if: github.ref == 'refs/heads/develop'
         steps:
           - uses: actions/checkout@v4
+            with:
+              ref: develop
           - name: print latest_commit
             run: echo ${{ github.sha }}
 
@@ -44,7 +46,7 @@ jobs:
 
   bump-version:
     needs: check_date
-    if: ${{ needs.check_date.outputs.should_run != 'false' }} && github.ref == 'refs/heads/develop'
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
     outputs:
@@ -76,7 +78,7 @@ jobs:
 
   dispatcher:
     needs: [check_date, bump-version]
-    if: ${{ needs.check_date.outputs.should_run != 'false' }} && github.ref == 'refs/heads/develop'
+    if: ${{ needs.check_date.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
     name: dispatch repository event to tudat-feedstock
     # needs: bump-version
