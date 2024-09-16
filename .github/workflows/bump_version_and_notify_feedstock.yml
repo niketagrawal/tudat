@@ -35,13 +35,13 @@ jobs:
             with:
               ref: develop
           - name: print latest_commit
-            run: echo ${{ github.sha }}
+            run: git log -n 1 --pretty=format:"%H"
 
           - id: should_run
             continue-on-error: true
             name: check latest commit is less than a day
             if: ${{ github.event_name == 'schedule' }}
-            run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
+            run: test -z $(git rev-list  --after="24 hours" git log -n 1 --pretty=format:"%H") && echo "::set-output name=should_run::false"
 
 
   bump-version:
@@ -55,6 +55,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: develop
 
       - name: Install bump2version
         run: pip install bump2version
