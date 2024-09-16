@@ -1,7 +1,6 @@
-# When a push is made to the develop branch of the main repository, this workflow does the following:
-# 1. Bumps the version in the tudat github repository.
-# 2. Creates a new tag in the tudat github repository.
-# 3. Sends a repository dispatch event to the tudat-feedstock repository to trigger the creation of a new development conda package.
+# This workflow is triggered every 5 minutes and checks if there has been a commit in the last 24 hours on the develop branch of tudat repository.
+# If there has been a commit, it bumps the version in the tudat repository and dispatches an event to tudat-feedstock repository.
+# Reference for the logic to check if there has been a commit in the last 24 hours: https://stackoverflow.com/questions/4089430/how-can-i-determine-if-a-git-commit-is-more-recent-than-another-commit
 
 
 name: Bump version upon new commits in the last 24 hours and notify feedstock
@@ -18,14 +17,7 @@ permissions:
 
 jobs:
 
-  echo_hello:
-    runs-on: ubuntu-latest
-    name: Echo Hello
-    steps:
-      - name: Echo Hello
-        run: echo "Hello"
-
-  check_date:
+  check_recent_24h_commit:
         runs-on: ubuntu-latest
         name: Check latest commit
         outputs:
@@ -33,20 +25,22 @@ jobs:
         steps:
           - uses: actions/checkout@v4
             with:
-              ref: develop
+              ref: develop  # Check the latest commit on the develop branch of tudat repository
           - name: print latest_commit
-            run: git log -n 1 --pretty=format:"%H" ; echo check_date.outputs.should_run
+            run: git log -n 1 --pretty=format:"%H"
+
 
           - id: should_run
             continue-on-error: true
             name: check latest commit is less than a day
             if: ${{ github.event_name == 'schedule' }}
-            run: test -z $(git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H")) && echo "::set-output name=should_run::false"; echo check_date.outputs.should_run
+            run: test -z $(git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H")) && echo "::set-output name=should_run::false"
+            # If the latest commit is less than 24 hours old, the command git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string, which will cause the test -z command to fail and the output should_run will be set to false. test -z checks if the string is empty or not. If the string is empty, it returns true, which means the latest commit is more than 24 hours old and the output should_run will be set to true.
 
 
   bump-version:
-    needs: check_date
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    needs: check_recent_24h_commit
+    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
     outputs:
@@ -79,8 +73,8 @@ jobs:
 
 
   dispatcher:
-    needs: [check_date, bump-version]
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    needs: [check_recent_24h_commit, bump-version]
+    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
     name: dispatch repository event to tudat-feedstock
     # needs: bump-version
