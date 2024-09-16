@@ -82,6 +82,7 @@ jobs:
           uses: actions/checkout@v4
           with:
             repository: niketagrawal/tudat-feedstock
+            token: ${{ secrets.PAT_dispatch }}
             ref: develop
 
         - name: Install bump2version
@@ -96,7 +97,7 @@ jobs:
         - name: Push tag to tuda-feedstock
           run: git push origin --follow-tags
           env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              GITHUB_TOKEN: ${{ secrets.PAT_dispatch }}
 
 
 
