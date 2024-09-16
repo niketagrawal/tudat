@@ -19,6 +19,7 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/accelerationModelTypes.h"
 #include "tudat/basics/deprecationWarnings.h"
+#include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 // #include "tudat/math/interpolators/createInterpolator.h"
 
 namespace tudat
@@ -60,6 +61,31 @@ public:
 
 };
 
+class RadiationPressureAccelerationSettings: public AccelerationSettings
+{
+public:
+
+    // Constructor, sets type of acceleration.
+    /*
+     *  Constructor, sets type of acceleration.
+     *  \param accelerationType Type of acceleration from AvailableAcceleration enum.
+     */
+    RadiationPressureAccelerationSettings( const RadiationPressureTargetModelType targetModelType = undefined_target ):
+        AccelerationSettings( basic_astrodynamics::radiation_pressure ), targetModelType_( targetModelType )
+        {
+            if( targetModelType_ == multi_type_target )
+            {
+                throw std::runtime_error( "Error when creating radiation pressure acceleration settings, cannot select multi-type target" );
+            }
+        }
+
+    // Destructor.
+    virtual ~RadiationPressureAccelerationSettings( ){ }
+
+    RadiationPressureTargetModelType targetModelType_;
+
+};
+
 inline std::shared_ptr< AccelerationSettings > acceleration( basic_astrodynamics::AvailableAcceleration accelerationType  )
 {
     return std::make_shared< AccelerationSettings >( accelerationType );
@@ -70,6 +96,12 @@ inline std::shared_ptr< AccelerationSettings > pointMassGravityAcceleration( )
 {
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity );
 }
+
+inline std::shared_ptr< AccelerationSettings > einsteinInfledHoffmannGravityAcceleration( )
+{
+    return std::make_shared< AccelerationSettings >( basic_astrodynamics::einstein_infeld_hoffmann_acceleration );
+}
+
 
 //! @get_docstring(aerodynamicAcceleration)
 inline std::shared_ptr< AccelerationSettings > aerodynamicAcceleration( )
@@ -83,9 +115,9 @@ inline std::shared_ptr< AccelerationSettings > cannonBallRadiationPressureAccele
     return std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure );
 }
 
-inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration()
+inline std::shared_ptr< AccelerationSettings > radiationPressureAcceleration( const RadiationPressureTargetModelType targetModelType = undefined_target )
 {
-    return std::make_shared< AccelerationSettings >( basic_astrodynamics::radiation_pressure );
+    return std::make_shared< RadiationPressureAccelerationSettings >( targetModelType );
 }
 
 
@@ -106,9 +138,11 @@ public:
      *  \param maximumOrder Maximum order
      */
     SphericalHarmonicAccelerationSettings( const int maximumDegree,
-                                           const int maximumOrder ):
+                                           const int maximumOrder,
+                                           const bool removePointMass = false ):
         AccelerationSettings( basic_astrodynamics::spherical_harmonic_gravity ),
-        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ){ }
+        maximumDegree_( maximumDegree ), maximumOrder_( maximumOrder ),
+        removePointMass_( removePointMass ){ }
 
 
     // Maximum degree that is to be used for spherical harmonic acceleration
@@ -116,6 +150,8 @@ public:
 
     // Maximum order that is to be used for spherical harmonic acceleration
     int maximumOrder_;
+
+    bool removePointMass_;
 };
 
 //! @get_docstring(sphericalHarmonicAcceleration)

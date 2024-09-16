@@ -689,6 +689,12 @@ public:
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
+        if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, size of weights diagonal (" +
+                std::to_string( estimationInput->getWeightsMatrixDiagonals( ).rows( ) ) + ") is not compatible with number of observations (" +
+                std::to_string( totalNumberOfObservations ) + ")" );
+        }
         // Declare variables to be returned (i.e. results from best iteration)
         double bestResidual = TUDAT_NAN;
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
@@ -697,6 +703,7 @@ public:
         Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Constant( totalNumberOfObservations, totalNumberParameters_, TUDAT_NAN );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix = Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
+
 
         Eigen::VectorXd bestConsiderTransformationData;
         Eigen::MatrixXd bestDesignMatrixConsiderParameters, bestConsiderCovarianceContribution;
@@ -935,6 +942,30 @@ public:
         return estimationOutput;
     }
 
+
+    template< int ObservationSize >
+    void computePartialsAndObservations(
+        const observation_models::LinkEnds& linkEnds,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+        const observation_models::ObservableType observableType,
+        const observation_models::LinkEndType referenceLinkEnd,
+        const std::vector< TimeType >& times,
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector,
+        Eigen::MatrixXd& partials )
+    {
+        std::shared_ptr< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > > observationManager =
+            std::dynamic_pointer_cast< observation_models::ObservationManager< ObservationSize, ObservationScalarType, TimeType > >( observationManagers_.at(
+            observableType ) );
+
+        // Extract observation model
+        std::shared_ptr< observation_models::ObservationModel< ObservationSize, ObservationScalarType, TimeType > > observationModel =
+                observationManager->getObservationModel( linkEnds );
+
+        // Compute analytical partials
+        observationManager->computeObservationsWithPartials(
+            times, linkEnds, referenceLinkEnd, ancilliarySettings, observationsVector, partials, true, true );
+
+    }
     //! Function to reset the current parameter estimate.
     /*!
      *  Function to reset the current parameter estimate; reintegrates the variational equations and equations of motion with new estimate.
@@ -1367,6 +1398,7 @@ protected:
     bool considerParametersIncluded_;
 
 };
+
 
 extern template class OrbitDeterminationManager< double, double >;
 
