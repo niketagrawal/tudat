@@ -76,7 +76,7 @@ jobs:
               git config --global user.name "GitHub Actions"
               bump2version minor --config-file .bumpversion.cfg --verbose
 
-        - name: Push tag to tuda-feedstock
+        - name: Push tag to tudat-feedstock
           run: git push origin --follow-tags
           env:
               GITHUB_TOKEN: ${{ secrets.PAT_dispatch }}
