@@ -4,17 +4,25 @@
 # 3. Sends a repository dispatch event to the tudat-feedstock repository to trigger the creation of a new development conda package.
 
 
-name: Trigger creation of new development conda package
+name: Bump version upon new commits in the last 24 hours and notify feedstock
 
 on:
     schedule:
-        - cron: '5 * * * *'
+        - cron: '*/5 * * * *'
+    workflow_dispatch:
 
 permissions:
   contents: write
   actions: write
 
 jobs:
+
+  echo_hello:
+    runs-on: ubuntu-latest
+    name: Echo Hello
+    steps:
+      - name: Echo Hello
+        run: echo "Hello"
 
   check_date:
         runs-on: ubuntu-latest
