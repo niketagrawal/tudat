@@ -30,7 +30,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: develop
+          ref: master
 
       - name: Install bump2version
         run: pip install bump2version
@@ -59,7 +59,7 @@ jobs:
           with:
             repository: niketagrawal/tudat-feedstock
             token: ${{ secrets.PAT_dispatch }}
-            ref: develop
+            ref: master
 
         - name: Install bump2version
           run: pip install bump2version
