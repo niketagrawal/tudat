@@ -84,9 +84,11 @@ jobs:
             repository: niketagrawal/tudat-feedstock
             ref: develop
 
+        - name: Install bump2version
+          run: pip install bump2version
+
         - name: Bump version on feedstock
           run: |
-              pwd
               git config --global user.email "actions@github.com"
               git config --global user.name "GitHub Actions"
               bump2version dev --config-file .bumpversion.cfg --verbose
