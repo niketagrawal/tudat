@@ -1,5 +1,5 @@
 # This workflow is triggered every 5 minutes and checks if there has been a commit in the last 24 hours on the develop branch of tudat repository.
-# If there has been a commit, it bumps the version in the develop branch of the tudat repository, creates a tag with the version numbers and pushes both the commit and the tag to the repository, and dispatches an event to tudat-feedstock repository.
+# If there has been a commit, it bumps the version in the develop branch of the tudat repository, creates a tag with the version numbers and pushes both the commit and the tag to the repository, and then bumps the version in the develop branch of the tudat-feedstock repository and pushes the commit and the tag to the repository.
 # Reference for the logic to check if there has been a commit in the last 24 hours: https://stackoverflow.com/questions/4089430/how-can-i-determine-if-a-git-commit-is-more-recent-than-another-commit
 
 
@@ -38,7 +38,7 @@ jobs:
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
 
-  bump-version:
+  bump-version_tudat:
     needs: check_recent_24h_commit
     if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
@@ -98,31 +98,3 @@ jobs:
           run: git push origin --follow-tags
           env:
               GITHUB_TOKEN: ${{ secrets.PAT_dispatch }}
-
-
-
-#   dispatcher:
-#     needs: [check_recent_24h_commit, bump-version]
-#     if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
-#     runs-on: ubuntu-latest
-#     name: dispatch repository event to tudat-feedstock
-#     # needs: bump-version
-
-#     steps:
-#       - name: repository-dispatch
-#         uses: peter-evans/repository-dispatch@v3
-#         with:
-#           token: ${{ secrets.PAT_dispatch }}
-#           repository: niketagrawal/tudat-feedstock
-#           event-type: push-to-niketagrawal/tudat-feedstock
-#           client-payload: >-
-#             {
-#               "event": "${{ github.event_name }}",
-#               "actor": "${{ github.actor }}",
-#               "repository": "${{ github.repository }}",
-#               "ref": "${{ github.ref }}",
-#               "ref_name": "${{ github.ref_name }}",
-#               "ref_type": "${{ github.ref_type }}",
-#               "sha": "${{ github.sha }}",
-#               "version": "${{ needs.bump-version.outputs.new_version }}"
-#             }
