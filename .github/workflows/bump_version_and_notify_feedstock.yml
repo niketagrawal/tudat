@@ -29,6 +29,7 @@ jobs:
         name: Check latest commit
         outputs:
           should_run: ${{ steps.should_run.outputs.should_run }}
+        if: github.ref == 'refs/heads/develop'
         steps:
           - uses: actions/checkout@v4
           - name: print latest_commit
@@ -43,7 +44,7 @@ jobs:
 
   bump-version:
     needs: check_date
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    if: ${{ needs.check_date.outputs.should_run != 'false' }} && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
     outputs:
@@ -75,7 +76,7 @@ jobs:
 
   dispatcher:
     needs: [check_date, bump-version]
-    if: ${{ needs.check_date.outputs.should_run != 'false' }}
+    if: ${{ needs.check_date.outputs.should_run != 'false' }} && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     name: dispatch repository event to tudat-feedstock
     # needs: bump-version
