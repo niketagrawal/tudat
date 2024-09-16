@@ -3,7 +3,7 @@
 # Reference for the logic to check if there has been a commit in the last 24 hours: https://stackoverflow.com/questions/4089430/how-can-i-determine-if-a-git-commit-is-more-recent-than-another-commit
 
 
-name: Bump version upon new commits in the last 24 hours and notify feedstock
+name: Bump dev version in tudat and tudat-feedstock if new commit in last 24 hours
 
 on:
     schedule:

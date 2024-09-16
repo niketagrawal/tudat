@@ -1,0 +1,76 @@
+# This workflow is triggered upon push or pull request to the master branch of the tudat repository.
+# Once triggered, the workflow bumps the minor version in the master branch of the tudat repository, creates a tag with the version number and pushes both the commit and the tag to the repository, and then bumps the minor version in the master branch of the tudat-feedstock repository and pushes the commit and the tag to the repository.
+
+
+
+name: Bump minor version in tudat and tudat-feedstock repositories
+
+on:
+    push:
+        branches:
+        - master
+    pull_request:
+        branches:
+        - master
+
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+
+  bump_minor_version_tudat:
+    runs-on: ubuntu-latest
+    name: Bump minor version in tudat repository
+    outputs:
+      new_version: ${{ steps.bump_version.outputs.new_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Install bump2version
+        run: pip install bump2version
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          bump2version minor --config-file .bumpversion.cfg --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push tag to tudat repository
+        run: git push origin --follow-tags
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+  bump_minor_version_tudat_feedstock:
+    runs-on: ubuntu-latest
+    name: Bump minor version and create tag in tudat-feedstock
+    steps:
+        - name: checkout tudat-feedstock
+          uses: actions/checkout@v4
+          with:
+            repository: niketagrawal/tudat-feedstock
+            token: ${{ secrets.PAT_dispatch }}
+            ref: develop
+
+        - name: Install bump2version
+          run: pip install bump2version
+
+        - name: Bump version on feedstock
+          run: |
+              git config --global user.email "actions@github.com"
+              git config --global user.name "GitHub Actions"
+              bump2version minor --config-file .bumpversion.cfg --verbose
+
+        - name: Push tag to tuda-feedstock
+          run: git push origin --follow-tags
+          env:
+              GITHUB_TOKEN: ${{ secrets.PAT_dispatch }}
