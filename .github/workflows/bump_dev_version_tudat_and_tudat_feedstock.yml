@@ -14,7 +14,7 @@ name: Bump dev version in tudat and tudat-feedstock if new commit in last 24 hou
 
 on:
     schedule:
-        - cron: '0 1 * * *'  # This triggers the workflow at 3:00 AM CET everyday
+        - cron: '0 15 * * *'  # This triggers the workflow at 3:00 AM CET everyday
     workflow_dispatch:       # This facilitates manual triggering of the workflow from the Actions tab of the repository in case the scheduled run fails.
 
 
