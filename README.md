@@ -9,4 +9,4 @@ Repository with the core functionality of the Tudat ecosystem.
 
 Dispatch event job fixed on this repository and on tudat-feedstock. 
 
-Change to trigger bump version on Sept 19.
+Change to trigger bump version
