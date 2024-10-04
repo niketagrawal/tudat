@@ -93,15 +93,17 @@ jobs:
         - name: Install bump2version
           run: pip install bump2version
 
-        - name: Bump version on feedstock
-          run: |
-              git config --global user.email "actions@github.com"
-              git config --global user.name "GitHub Actions"
-              bump2version dev --config-file .bumpversion.cfg --verbose
-
-        - name: Reset build number to 0
+        - name: Reset build number to 0 and stage the change
           shell: bash
-          run: sed -i 's/build = ".*" %}/build = "2" %}/' recipe/meta.yaml
+          run: |
+                git config --global user.email "actions@github.com"
+                git config --global user.name "GitHub Actions"
+                sed -i 's/build = ".*" %}/build = "4" %}/' recipe/meta.yaml
+                git add recipe/meta.yaml
+                git status
+
+        - name: Bump version on feedstock
+          run: bump2version dev --config-file .bumpversion.cfg --verbose
 
         - name: cat meta yaml
           shell: bash
