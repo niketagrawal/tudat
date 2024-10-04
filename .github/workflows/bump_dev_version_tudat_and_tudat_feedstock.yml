@@ -99,6 +99,9 @@ jobs:
               git config --global user.name "GitHub Actions"
               bump2version dev --config-file .bumpversion.cfg --verbose
 
+        - name: Reset build number to 0
+          run: sed -i '' s/'build = ".*" %}'/'build = "0" %}'/ meta.yaml
+
         - name: Push tag to tuda-feedstock
           run: git push origin --follow-tags
           env:
