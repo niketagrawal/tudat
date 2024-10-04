@@ -101,7 +101,7 @@ jobs:
 
         - name: Reset build number to 0
           shell: bash
-          run: sed -i '' s/'build = ".*" %}'/'build = "0" %}'/ recipe/meta.yaml
+          run: sed -i 's/build = ".*" %}/build = "0" %}/' recipe/meta.yaml
 
 
 
