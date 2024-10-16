@@ -60,7 +60,7 @@ jobs:
           ref: develop
 
       - name: Install bump2version
-        run: sudo apt install python3-bump2version
+        run: pip3 install bump2version
 
       - name: Bump version
         id: bump_version
@@ -91,7 +91,7 @@ jobs:
             ref: develop
 
         - name: Install bump2version
-          run: sudo apt install python3-bump2version
+          run: pip3 install bump2version
 
         - name: Bump version on feedstock
           run: |
