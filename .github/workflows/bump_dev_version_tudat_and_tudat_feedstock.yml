@@ -25,7 +25,7 @@ permissions:
 jobs:
 
   check_recent_24h_commit:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         name: Check latest commit
         outputs:
           should_run: ${{ steps.should_run.outputs.should_run }}
