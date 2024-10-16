@@ -59,11 +59,11 @@ jobs:
         with:
           ref: develop
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      #- name: Set up Python
+       # uses: actions/setup-python@v5
 
       - name: Create virtual environment
-        run: python -m venv venv
+        run: python3 -m venv venv
 
       - name: Install bump2version and run bumpversion
         run: | 
