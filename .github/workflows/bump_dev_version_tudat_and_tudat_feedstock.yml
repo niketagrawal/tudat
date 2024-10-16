@@ -48,7 +48,7 @@ jobs:
   bump-version_tudat:
     needs: check_recent_24h_commit
     if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Bump version in tudat repository
     outputs:
       new_version: ${{ steps.bump_version.outputs.new_version }}
@@ -80,7 +80,7 @@ jobs:
   bump_version_tudat_feedstock:
     needs: check_recent_24h_commit
     if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: bump version and create tag in tudat-feedstock
     steps:
         - name: checkout tudat-feedstock
