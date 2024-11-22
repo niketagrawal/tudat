@@ -41,7 +41,7 @@ jobs:
             run: git log -n 1 --pretty=format:"%H"
 
 
-          - id: should_run
+          - id: should_bump_version
             continue-on-error: true
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
@@ -58,66 +58,59 @@ jobs:
           - name: print github env
             run: echo should_run=$should_run
 
-  bump-version_tudat:
-    needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
-    # if shoud_run is true, then the workflow will run, else it will be skipped.
-    runs-on: ubuntu-latest
-    name: Bump version in tudat repository
-    outputs:
-      new_version: ${{ steps.bump_version.outputs.new_version }}
+          - name: checkout develop branch
+            if: ${{ $should_run == 'true' }}
+            uses: actions/checkout@v4
+            with:
+              ref: develop
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: develop
+          - name: Install bump2version and run bumpversion
+            if: ${{ $should_run == 'true' }}
+            run: |
+                        python3 -m venv venv
+                        source venv/bin/activate
+                        pip install bump2version
+                        git config --global user.email "actions@github.com"
+                        git config --global user.name "GitHub Actions"
+                        bump2version dev --config-file .bumpversion.cfg --verbose
 
-      - name: Install bump2version and run bumpversion
-        run: |
-            python3 -m venv venv
-            source venv/bin/activate
-            pip install bump2version
-            git config --global user.email "actions@github.com"
-            git config --global user.name "GitHub Actions"
-            bump2version dev --config-file .bumpversion.cfg --verbose
-
-      - name: Push tag to tudat repository
-        run: git push origin --follow-tags
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          - name: Push tag to tudat repository
+            if: ${{ $should_run == 'true' }}
+            run: git push origin --follow-tags
+            env:
+                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-  bump_version_tudat_feedstock:
-    needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
-    runs-on: ubuntu-latest
-    name: bump version and create tag in tudat-feedstock
-    steps:
-        - name: checkout tudat-feedstock
-          uses: actions/checkout@v4
-          with:
-            repository: niketagrawal/tudat-feedstock
-            token: ${{ secrets.PAT_DISPATCH }}
-            ref: develop
+            # bump_version_tudat_feedstock:
+            #     needs: check_recent_24h_commit
+            #     if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+            #     runs-on: ubuntu-latest
+            #     name: bump version and create tag in tudat-feedstock
+            #     steps:
+            #         - name: checkout tudat-feedstock
+            #         uses: actions/checkout@v4
+            #         with:
+            #             repository: niketagrawal/tudat-feedstock
+            #             token: ${{ secrets.PAT_DISPATCH }}
+            #             ref: develop
 
-        - name: Install bump2version and run bumpversion
-          run: |
-               python3 -m venv venv
-               source venv/bin/activate
-               pip install bump2version
-               git config --global user.email "actions@github.com"
-               git config --global user.name "GitHub Actions"
-               bump2version dev --config-file .bumpversion.cfg --verbose
+            #         - name: Install bump2version and run bumpversion
+            #         run: |
+            #             python3 -m venv venv
+            #             source venv/bin/activate
+            #             pip install bump2version
+            #             git config --global user.email "actions@github.com"
+            #             git config --global user.name "GitHub Actions"
+            #             bump2version dev --config-file .bumpversion.cfg --verbose
 
-        - name: Reset build number in meta.yml to 0
-          shell: bash
-          run: |
-                sed -i 's/build = ".*" %}/build = "0" %}/' recipe/meta.yaml
-                git add recipe/meta.yaml
-                git commit --amend --no-edit
+            #         - name: Reset build number in meta.yml to 0
+            #         shell: bash
+            #         run: |
+            #                 sed -i 's/build = ".*" %}/build = "0" %}/' recipe/meta.yaml
+            #                 git add recipe/meta.yaml
+            #                 git commit --amend --no-edit
 
-        - name: Push tag to tudat-feedstock
-          run: git push origin --follow-tags
-          env:
-              GITHUB_TOKEN: ${{ secrets.PAT_DISPATCH}}
+            #         - name: Push tag to tudat-feedstock
+            #         run: git push origin --follow-tags
+            #         env:
+            #             GITHUB_TOKEN: ${{ secrets.PAT_DISPATCH}}
