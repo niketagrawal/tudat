@@ -53,7 +53,7 @@ jobs:
                 fi
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
-            shell: shell
+            shell: bash
 
           - name: print github env
             run: echo $GITHUB_OUTPUT
