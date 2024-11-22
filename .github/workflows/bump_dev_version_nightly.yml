@@ -45,7 +45,7 @@ jobs:
             continue-on-error: true
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
-            run: test -z $(git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H")) && echo "should_run=false" >> $GITHUB_OUTPUT
+            run: test -z $(git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
 
@@ -54,7 +54,7 @@ jobs:
 
   bump-version_tudat:
     needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    #if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
     outputs:
