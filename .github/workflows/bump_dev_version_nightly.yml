@@ -46,7 +46,7 @@ jobs:
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
             run: |
-              STR=$("")
+              STR=""
               if test -z $STR; then
                 echo "should_run=false" >> $GITHUB_ENV
               else
