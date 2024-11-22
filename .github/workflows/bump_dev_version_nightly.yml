@@ -46,7 +46,7 @@ jobs:
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
             run: |
-              STR=$(git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
+              STR=$("")
               if test -z $STR; then
                 echo "should_run=false" >> $GITHUB_ENV
               else
@@ -61,7 +61,9 @@ jobs:
 
   bump-version_tudat:
     needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    #if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    # if shoud_run is true, then the workflow will run, else it will be skipped.
+    if: ${{ $should_run != 'false' }}
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
     outputs:
