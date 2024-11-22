@@ -48,16 +48,16 @@ jobs:
             run: |
               STR=$(git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
               if test -z $STR; then
-                echo "should_run=false" >> $GITHUB_OUTPUT
+                echo "should_run=false" >> $GITHUB_ENV
               else
-                echo "should_run=true" >> $GITHUB_OUTPUT
+                echo "should_run=true" >> $GITHUB_ENV
               fi
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
 
 
           - name: print github env
-            run: echo $GITHUB_OUTPUT
+            run: echo $GITHUB_ENV
 
   bump-version_tudat:
     needs: check_recent_24h_commit
