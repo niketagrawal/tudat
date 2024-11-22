@@ -45,12 +45,7 @@ jobs:
             continue-on-error: true
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
-            run: |
-                if [ -z "$(git rev-list --after="24 hours ago" HEAD)" ]; then
-                echo "should_run=false" >> $GITHUB_ENV
-                else
-                echo "should_run=true" >> $GITHUB_ENV
-                fi
+            run: git rev-list  --after="24 hours" $(git log -n 1 --pretty=format:"%H")
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
             shell: bash
