@@ -57,7 +57,7 @@ jobs:
 
 
           - name: print github env
-            run: echo $GITHUB_ENV
+            run: echo should_run=$should_run
 
   bump-version_tudat:
     needs: check_recent_24h_commit
