@@ -47,9 +47,9 @@ jobs:
             #if: ${{ github.event_name == 'schedule' }}
             run: |
               if test -z ""; then
-                echo "should_run=false" >> $GITHUB_ENV
+                echo "should_run=false" >> $GITHUB_OUTPUT
               else
-                echo "should_run=true" >> $GITHUB_ENV
+                echo "should_run=true" >> $GITHUB_OUTPUT
               fi
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
@@ -59,13 +59,13 @@ jobs:
             run: echo should_run=$should_run
 
           - name: checkout develop branch
-            if: ${{ $should_run == 'true' }}
+
             uses: actions/checkout@v4
             with:
               ref: develop
 
           - name: Install bump2version and run bumpversion
-            if: ${{ $should_run == 'true' }}
+            if: ${{ steps.should_bump_version.outputs.should_run == 'true' }}
             run: |
                         python3 -m venv venv
                         source venv/bin/activate
@@ -75,7 +75,7 @@ jobs:
                         bump2version dev --config-file .bumpversion.cfg --verbose
 
           - name: Push tag to tudat repository
-            if: ${{ $should_run == 'true' }}
+            if: ${{ steps.should_bump_version.outputs.should_run == 'true' }}
             run: git push origin --follow-tags
             env:
                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
