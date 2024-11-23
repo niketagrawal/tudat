@@ -46,7 +46,7 @@ jobs:
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
             run: |
-              if test -z ""; then
+              if test -z "hello"; then
                 echo "should_run=false" >> $GITHUB_OUTPUT
               else
                 echo "should_run=true" >> $GITHUB_OUTPUT
@@ -54,6 +54,8 @@ jobs:
             # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
 
+          - name: print should_run
+            run: echo "should_run=${{ steps.should_bump_version.outputs.should_run }}"
 
   bump-version_tudat:
     needs: check_recent_24h_commit
