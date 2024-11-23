@@ -46,7 +46,7 @@ jobs:
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
             run: |
-              if test -z ""; then
+              if test -z "hello"; then
                 echo "should_run=false" >> $GITHUB_OUTPUT
               else
                 echo "should_run=true" >> $GITHUB_OUTPUT
@@ -56,6 +56,7 @@ jobs:
 
   bump-version_tudat:
     needs: check_recent_24h_commit
+    # if should_run is true, then the workflow will run
     if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
