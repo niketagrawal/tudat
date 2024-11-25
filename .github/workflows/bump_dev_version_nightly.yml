@@ -44,7 +44,7 @@ jobs:
           - id: should_bump_version
             continue-on-error: true
             name: check latest commit is less than a day
-            #if: ${{ github.event_name == 'schedule' }}
+            if: ${{ github.event_name == 'schedule' }}
             run: |
               STR=$(git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
               if test -z $STR; then
