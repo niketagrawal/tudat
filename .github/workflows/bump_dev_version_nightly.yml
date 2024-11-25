@@ -46,7 +46,8 @@ jobs:
             name: check latest commit is less than a day
             #if: ${{ github.event_name == 'schedule' }}
             run: |
-              if test -z ""; then
+              STR=$(git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
+              if test -z $STR; then
                 echo "should_run=false" >> $GITHUB_OUTPUT
               else
                 echo "should_run=true" >> $GITHUB_OUTPUT
