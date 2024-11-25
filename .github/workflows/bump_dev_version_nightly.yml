@@ -44,7 +44,7 @@ jobs:
           - id: should_bump_version
             continue-on-error: true
             name: check latest commit is less than a day
-            if: ${{ github.event_name == 'schedule' }}
+            #if: ${{ github.event_name == 'schedule' }}
             run: |
               STR=$(git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
               if test -z $STR; then
@@ -60,8 +60,7 @@ jobs:
 
   bump-version_tudat:
     needs: check_recent_24h_commit
-    # if should_run is true, then the workflow will run
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     name: Bump version in tudat repository
 
@@ -88,7 +87,7 @@ jobs:
 
   bump_version_tudat_feedstock:
     needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' }}
+    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     name: bump version and create tag in tudat-feedstock
     steps:
